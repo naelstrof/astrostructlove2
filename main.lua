@@ -1,0 +1,18 @@
+require( "src/helper" )
+TSerial = require( "src/tserial" )
+Class = require( "src/30log" )
+Vector = require( "src/vector" )
+Camera = require( "src/camera" )
+Entity = require( "src/entity" )
+Entities = require( "src/entities" )
+World = require( "src/world" )
+Render = require( "src/render" )
+GameState = require( "src/gamestate" )
+PackLoader = require( "src/packloader" ):init()
+
+function love.load()
+    love.math.setRandomSeed( love.timer.getTime() )
+    love.window.setMode( 800, 600, { resizable = true, vsync = true } )
+    GameState.registerEvents()
+    GameState.switch( require( PackLoader:getRequire( "gamestates/menu" ) ) )
+end
