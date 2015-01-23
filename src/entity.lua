@@ -6,26 +6,36 @@ local Entity = Class( "Entity", {
     chains = {}
 } )
 
-function Entity:__add( a )
-    if a == nil then
-        return self
-    end
-    assert( Class.isInstance( a, Entity ), "Wrong type" )
-    for i,v in pairs( self ) do
+function Entity:__addrecurse( t, a )
+    for i,v in pairs( t ) do
         if type(v) == "number" then
-            self[i] = self[i] + a[i]
+            t[i] = t[i] + a[i]
+        elseif type( v ) == "table" and i ~= "__index" then
+            self:__addrecurse( v, a[i] )
         end
     end
+    return t
+end
+
+function Entity:__add( a )
+    self:__addrecurse( self, a )
     return self
+end
+
+function Entity:__mulrecurse( t, a )
+    for i,v in pairs( t ) do
+        if type( v ) == "number" then
+            t[i] = v * a
+        elseif type( v ) == "table" and i ~= "__index" then
+            self:__mulrecurse( v, a )
+        end
+    end
+    return t
 end
 
 function Entity:__mul( a )
     assert( type( a ) == "number", "Wrong type" )
-    for i,v in pairs( self ) do
-        if type( self[i] ) == "number" then
-            self[i] = self[i] * a
-        end
-    end
+    self:__mulrecurse( self, a )
     return self
 end
 

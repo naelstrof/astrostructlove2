@@ -5,18 +5,18 @@ local World = Class( "World", {
     time = 0
 } )
 
-function World:__add( a )
-    assert( Class.isInstance( a, World ), "Wrong type" )
+function World:add( a )
+    -- assert( Class.isInstance( a, World ), "Wrong type" )
     for i,v in pairs( self.entities ) do
-        self.entities[i] = v + a[i]
+        self.entities[i] = v + a.entities[i]
     end
     return self
 end
 
-function World:__mul( a )
+function World:mul( a )
     assert( type(a) == "number", "Wrong type" )
     for i,v in pairs( self.entities ) do
-        self.entities[i] = v * a
+        v = v * a
     end
     return self
 end
