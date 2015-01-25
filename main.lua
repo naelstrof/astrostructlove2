@@ -15,7 +15,14 @@ PackLoader = require( "src/packloader" ):init()
 function love.load()
     love.math.setRandomSeed( love.timer.getTime() )
     Options:load()
-    love.window.setMode( 800, 600, { resizable = true, vsync = true } )
+    love.window.setMode( Options:get( "windowedWidth" ),
+                         Options:get( "windowedHeight" ),
+                         {
+                             resizable = true,
+                             vsync = true,
+                             fullscreentype = "desktop",
+                             fullscreen = Options:get( "fullscreen" )
+                         } )
     GameState.registerEvents()
     GameState.switch( require( PackLoader:getRequire( "gamestates/menu" ) ) )
 end

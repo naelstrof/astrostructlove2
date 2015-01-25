@@ -40,10 +40,10 @@ function OptionsMenu:enter()
             edit:SetText( v )
             edit.index = i
             edit.OnEnter = function( object, text )
-                Options:setOption( object.index, object:GetText() )
+                Options:set( object.index, object:GetText() )
             end
             edit.OnFocusLost = function( object )
-                Options:setOption( object.index, object:GetText() )
+                Options:set( object.index, object:GetText() )
             end
             edit.OnFocusGained = function( object )
                 object:SelectAll()
@@ -54,7 +54,23 @@ function OptionsMenu:enter()
             edit:SetPos( 512-40-edit:GetWidth()-5, 10 )
             edit.index = i
             edit.OnChanged = function( object, checked )
-                Options:setOption( object.index, checked )
+                Options:set( object.index, checked )
+            end
+        elseif t == "number" then
+            local edit = loveframes.Create( "textinput", panel )
+            edit:SetUsable( { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "." } )
+            edit:SetWidth( 356 )
+            edit:SetPos( 512-10-10-edit:GetWidth()-5, 7 )
+            edit:SetText( v )
+            edit.index = i
+            edit.OnEnter = function( object, text )
+                Options:set( object.index, tonumber( object:GetText() ) )
+            end
+            edit.OnFocusLost = function( object )
+                Options:set( object.index, tonumber( object:GetText() ) )
+            end
+            edit.OnFocusGained = function( object )
+                object:SelectAll()
             end
         end
         list:AddItem( panel )

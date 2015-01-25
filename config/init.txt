@@ -1,5 +1,7 @@
 {
     fullscreen = false,
+    windowedWidth = 800,
+    windowedHeight = 600,
     playername = "Naelstrof",
     gamestate = "menu.lua"
 }

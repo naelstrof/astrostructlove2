@@ -31,10 +31,26 @@ function Options:interpret( i, v )
             flags.fullscreentype = "desktop"
             love.window.setMode( width, height, flags )
         end
+    elseif i == "windowedWidth" then
+        local width, height, flags = love.window.getMode()
+        if width ~= v then
+            width = v
+            love.window.setMode( width, height, flags )
+        end
+    elseif i == "windowedHeight" then
+        local width, height, flags = love.window.getMode()
+        if height ~= v then
+            height = v
+            love.window.setMode( width, height, flags )
+        end
     end
 end
 
-function Options:setOption( i, v )
+function Options:get( i )
+    return self.options[ i ]
+end
+
+function Options:set( i, v )
     self.options[ i ] = v
     self:interpret( i, v )
 end
