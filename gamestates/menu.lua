@@ -4,7 +4,7 @@ local Test = {
     currentWorld = nil,
     worldAlpha = 0,
     camera = Camera:new( 0, 0 ),
-    timestep = 1
+    timestep = 1/60 -- 60 fps
 }
 
 function Test:enter()

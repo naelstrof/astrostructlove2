@@ -34,12 +34,12 @@ local function instantiate(self,...)
   local instance = {class = self}
   _instances[instance] = tostring(instance)
   setmetatable(instance,self)
-  
+
   if self.init then
-    if type(self.init) == 'table' then 
+    if type(self.init) == 'table' then
       deep_copy(self.init, instance)
-    else 
-      self.init(instance, ...) 
+    else
+      self.init(instance, ...)
     end
   end
   return instance
@@ -64,7 +64,7 @@ baseMt = {
       ("instance of '%s' (%s)")
         :format(rawget(self.class,'name') or '?', _instances[self])
     end
-    return _classes[self] and 
+    return _classes[self] and
       ("class '%s' (%s)")
         :format(rawget(self,'name') or '?',_classes[self]) or self
 end}
@@ -78,17 +78,22 @@ local class = {
     if ofsuper then
       return isclass and (class.super == ofsuper)
     end
-    return isclass 
+    return isclass
   end,
   isInstance = function(instance, ofclass) 
     local isinstance = not not _instances[instance]
     if ofclass then
       return isinstance and (instance.class == ofclass)
     end
-    return isinstance 
-  end
+    return isinstance
+  end,
+  clone = function(name, class)
+    local superclass = class.super
+    local copy = superclass and superclass:extend(name) or _class(name)
+    return deep_copy(class, copy)
+  end,
 }
-  
+
 _class = function(name, attr)
   local c = deep_copy(attr)
   c.mixins = setmetatable({},{__mode='k'})
@@ -96,32 +101,32 @@ _class = function(name, attr)
   c.name       = name
   c.__tostring = baseMt.__tostring
   c.__call     = baseMt.__call
-  
+
   c.include = function(self,mixin)
     assert_class(self, 'include(mixin)')
     self.mixins[mixin] = true
     return deep_copy(mixin, self, 'function') 
   end
-  
+
   c.new = instantiate
   c.extend = extend
   c.__index = c
-  
-  c.includes = function(self,mixin) 
+
+  c.includes = function(self,mixin)
     assert_class(self,'includes(mixin)')
     return not not (self.mixins[mixin] or (self.super and self.super:includes(mixin)))
   end
-  
+
   c.extends = function(self, class)
     assert_class(self, 'extends(class)')
     local super = self
-    repeat 
+    repeat
       super = super.super
     until (super == class or super == nil)
-    return class and (super == class) 
+    return class and (super == class)
   end
-  
-  return setmetatable(c, baseMt) 
+
+  return setmetatable(c, baseMt)
 end
 
 class._DESCRIPTION = '30 lines library for object orientation in Lua'

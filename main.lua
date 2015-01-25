@@ -12,7 +12,7 @@ PackLoader = require( "src/packloader" ):init()
 
 function love.load()
     love.math.setRandomSeed( love.timer.getTime() )
-    love.window.setMode( 500, 200, { resizable = true, vsync = true } )
+    love.window.setMode( 800, 600, { resizable = true, vsync = true } )
     GameState.registerEvents()
     GameState.switch( require( PackLoader:getRequire( "gamestates/menu" ) ) )
 end
