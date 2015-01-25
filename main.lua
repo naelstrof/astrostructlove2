@@ -24,5 +24,5 @@ function love.load()
                              fullscreen = Options:get( "fullscreen" )
                          } )
     GameState.registerEvents()
-    GameState.switch( require( PackLoader:getRequire( "gamestates/menu" ) ) )
+    GameState.switch( require( PackLoader:getRequire( "gamestates/loading" ) ) )
 end
