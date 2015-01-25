@@ -1,4 +1,5 @@
 require( "src/helper" )
+loveframes = require( "src.LoveFrames" )
 TSerial = require( "src/tserial" )
 Class = require( "src/30log" )
 Vector = require( "src/vector" )

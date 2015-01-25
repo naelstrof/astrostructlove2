@@ -7,20 +7,24 @@ local setmetatable = setmetatable
 local baseMt     = {}
 local _instances = setmetatable({},{__mode='k'})
 local _classes   = setmetatable({},{__mode='k'})
-local _class
+local _class, class
 
 local function assert_class(class, method) 
   assert(_classes[class], ('Wrong method call. Expected class:%s.'):format(method)) 
 end
 
-local function deep_copy(t, dest, aType)
+local function deep_copy(t, dest, aType, n)
   t = t or {}; local r = dest or {}
   for k,v in pairs(t) do
     if aType and type(v)==aType then 
       r[k] = v 
     elseif not aType then
-      if type(v) == 'table' and k ~= "__index" then 
-        r[k] = deep_copy(v) 
+      if type(v) == 'table' and k ~= "__index" then
+                if _instances[v] or _classes[v] then
+                    r[k] = class.clone(n, v)
+                else
+                    r[k] = deep_copy(v, nil, aType, n)
+                end
       else 
         r[k] = v 
       end
@@ -34,12 +38,12 @@ local function instantiate(self,...)
   local instance = {class = self}
   _instances[instance] = tostring(instance)
   setmetatable(instance,self)
-
+  
   if self.init then
-    if type(self.init) == 'table' then
+    if type(self.init) == 'table' then 
       deep_copy(self.init, instance)
-    else
-      self.init(instance, ...)
+    else 
+      self.init(instance, ...) 
     end
   end
   return instance
@@ -49,7 +53,7 @@ local function extend(self, name, extra_params)
   assert_class(self, 'extend(...)')
   local heir = {}
   _classes[heir] = tostring(heir)
-  deep_copy(extra_params, deep_copy(self, heir))
+  deep_copy(extra_params, deep_copy(self, heir,nil, name), nil, name)
   heir.name = extra_params and extra_params.name or name
   heir.__index = heir
   heir.super = self
@@ -64,7 +68,7 @@ baseMt = {
       ("instance of '%s' (%s)")
         :format(rawget(self.class,'name') or '?', _instances[self])
     end
-    return _classes[self] and
+    return _classes[self] and 
       ("class '%s' (%s)")
         :format(rawget(self,'name') or '?',_classes[self]) or self
 end}
@@ -72,65 +76,70 @@ end}
 _classes[baseMt] = tostring(baseMt)
 setmetatable(baseMt, {__tostring = baseMt.__tostring})
 
-local class = {
+class = {
   isClass = function(class, ofsuper)
     local isclass = not not _classes[class]
     if ofsuper then
       return isclass and (class.super == ofsuper)
     end
-    return isclass
+    return isclass 
   end,
   isInstance = function(instance, ofclass) 
     local isinstance = not not _instances[instance]
     if ofclass then
       return isinstance and (instance.class == ofclass)
     end
-    return isinstance
+    return isinstance 
   end,
-  clone = function(name, class)
-    local superclass = class.super
-    local copy = superclass and superclass:extend(name) or _class(name)
-    return deep_copy(class, copy)
+  clone = function(name, tbl)
+        assert(_classes[tbl] or _instances[tbl], 'Wrong argument #2. Expected a class or an instance')
+        if _classes[tbl] then
+            local super = tbl.super
+            local copy = super and super:extend(name, tbl) or _class(name, tbl)
+            for mixin in pairs(tbl.mixins) do copy:include(mixin) end
+            return copy
+        end
+    return deep_copy(tbl, tbl.class:new(), nil, name)
   end,
 }
 
 _class = function(name, attr)
-  local c = deep_copy(attr)
+  local c = deep_copy(attr,nil,nil,name)
   c.mixins = setmetatable({},{__mode='k'})
   _classes[c] = tostring(c)
   c.name       = name
   c.__tostring = baseMt.__tostring
   c.__call     = baseMt.__call
-
+  
   c.include = function(self,mixin)
     assert_class(self, 'include(mixin)')
     self.mixins[mixin] = true
     return deep_copy(mixin, self, 'function') 
   end
-
+  
   c.new = instantiate
   c.extend = extend
   c.__index = c
-
-  c.includes = function(self,mixin)
+  
+  c.includes = function(self,mixin) 
     assert_class(self,'includes(mixin)')
     return not not (self.mixins[mixin] or (self.super and self.super:includes(mixin)))
   end
-
+  
   c.extends = function(self, class)
     assert_class(self, 'extends(class)')
     local super = self
-    repeat
+    repeat 
       super = super.super
     until (super == class or super == nil)
-    return class and (super == class)
+    return class and (super == class) 
   end
-
-  return setmetatable(c, baseMt)
+  
+  return setmetatable(c, baseMt) 
 end
 
 class._DESCRIPTION = '30 lines library for object orientation in Lua'
-class._VERSION     = '30log v1.0.0'
+class._VERSION     = '30log v1.1.0'
 class._URL         = 'http://github.com/Yonaba/30log'
 class._LICENSE     = 'MIT LICENSE <http://www.opensource.org/licenses/mit-license.php>'
 

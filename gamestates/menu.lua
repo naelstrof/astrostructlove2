@@ -1,39 +1,90 @@
-local Test = {
-    accumulator = 0,
-    previousWorld = nil,
-    currentWorld = nil,
-    worldAlpha = 0,
-    camera = Camera:new( 0, 0 ),
-    timestep = 1/60 -- 60 fps
+local Menu = {
+    menuItems = {},
+    buttonHeight = 24,
+    count = 0
 }
 
-function Test:enter()
-    local gamemode = require( PackLoader:getRequire( "gamemodes/test" ) )
-    self.currentWorld = World:new()
-    gamemode:init( self.currentWorld )
-    self.previousWorld = deepcopy( self.currentWorld )
+function Menu:addItem( item )
+    self.count = self.count + 1
+    table.insert( Menu.menuItems, item )
 end
 
-function Test:update( dt )
-    self.accumulator = self.accumulator + dt
-    if ( self.accumulator >= self.timestep ) then
-        self.previousWorld = deepcopy( self.currentWorld )
+local play = { name="Play", click=function( object, x, y )
+    GameState.switch( require( PackLoader:getRequire( "gamestates/test" ) ) )
+end }
+
+local options = { name="Options", click=function( object, x, y )
+    print( "TODO: options" )
+end }
+
+local quit = { name="Quit", click=function( object, x, y )
+    love.event.quit()
+end }
+
+Menu:addItem( play )
+Menu:addItem( options )
+Menu:addItem( quit )
+
+function Menu:enter()
+    -- We use this in Menu:resize() too, so we don't use a
+    -- local variable
+    self.frame = loveframes.Create( "frame" )
+    self.frame:SetName( "Main Menu" )
+    self.frame:ShowCloseButton( false )
+    self.frame:SetHeight( 250 )
+    self.frame:Center() self.frame = loveframes.Create( "frame" )
+    self.frame:SetName( "Main Menu" )
+    self.frame:ShowCloseButton( false )
+    self.frame:SetHeight( 250 )
+    self.frame:Center()
+
+    local list = loveframes.Create( "list", self.frame )
+    list:SetPos( 0, 26 )
+    list:SetHeight( 224 )
+    list:SetPadding( 4 )
+    list:SetSpacing( 4 )
+    for i,v in pairs( self.menuItems ) do
+        local button = loveframes.Create( "button" )
+        button:SetText( v.name, self.frame )
+        button.OnClick = v.click
+        list:AddItem( button )
     end
-    while( self.accumulator >= self.timestep ) do
-        self.currentWorld:update( self.timestep )
-        self.accumulator = self.accumulator - self.timestep
-    end
-    self.worldAlpha = self.accumulator / self.timestep
 end
 
-function Test:draw()
-    -- Interpolate
-    local interpolation = deepcopy( self.currentWorld )
-    local interpolation2 = deepcopy( self.previousWorld )
-    interpolation:mul( self.worldAlpha )
-    interpolation2:mul( 1 - self.worldAlpha )
-    interpolation:add( interpolation2 )
-    Render:render( interpolation, self.camera )
+function Menu:leave()
+    loveframes.util:RemoveAll()
 end
 
-return Test
+function Menu:draw()
+    loveframes.draw()
+end
+
+function Menu:update( dt )
+    loveframes.update( dt )
+end
+
+function Menu:mousepressed( x, y, button )
+    loveframes.mousepressed( x, y, button )
+end
+
+function Menu:mousereleased( x, y, button )
+    loveframes.mousereleased( x, y, button )
+end
+
+function Menu:keypressed( key, unicode )
+    loveframes.keypressed( key, unicode )
+end
+
+function Menu:keyreleased( key )
+    loveframes.keyreleased( key )
+end
+
+function Menu:textinput( text )
+    loveframes.textinput( text )
+end
+
+function Menu:resize( w, h )
+    self.frame:Center()
+end
+
+return Menu
