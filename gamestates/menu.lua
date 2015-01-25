@@ -14,7 +14,7 @@ local play = { name="Play", click=function( object, x, y )
 end }
 
 local options = { name="Options", click=function( object, x, y )
-    print( "TODO: options" )
+    GameState.switch( require( PackLoader:getRequire( "gamestates/options" ) ) )
 end }
 
 local quit = { name="Quit", click=function( object, x, y )
