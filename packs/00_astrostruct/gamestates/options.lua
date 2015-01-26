@@ -1,12 +1,25 @@
-local OptionsMenu = {}
+local OptionsMenu = {
+    tweentime = 0.5
+}
+
+function OptionsMenu:switch( gamestate )
+    self.tween = Tween.new( self.tweentime, self.position, self.outposition, "inQuad" )
+    Timer:add( self.tweentime, function()
+        GameState.switch( require( PackLoader:getRequire( gamestate ) ) )
+    end )
+end
 
 function OptionsMenu:enter()
     self.frame = loveframes.Create( "frame" )
     self.frame:SetName( "Options" )
     self.frame:SetWidth( 512 )
     self.frame:SetHeight( 512 )
-    self.frame:Center()
     self.frame:ShowCloseButton( false )
+    self.center = Vector( love.window.getWidth() / 2, love.window.getHeight() / 2 )
+    self.outposition = Vector( self.frame:GetWidth()/2 + self.center.x * 2, self.center.y )
+    self.position = deepcopy( self.outposition )
+    self.frame:SetPos( self.position.x, self.position.y, true )
+    self.tween = Tween.new( self.tweentime, self.position, self.center, "outQuad" )
 
     local column1 = loveframes.Create( "text", self.frame )
     column1:SetText( "Option Name" )
@@ -82,7 +95,7 @@ function OptionsMenu:enter()
     cancel.OnClick = function( object, x, y )
         --We have to reset everything if we canceled
         Options:load()
-        GameState.switch( require( PackLoader:getRequire( "gamestates/menu" ) ) )
+        GameState.current():switch( "gamestates/menu" )
     end
 
     local save = loveframes.Create( "button", self.frame )
@@ -90,7 +103,7 @@ function OptionsMenu:enter()
     save:SetPos( 512 - save:GetWidth() - 5, 512 - 30 )
     save.OnClick = function( object, x, y )
         Options:save()
-        GameState.switch( require( PackLoader:getRequire( "gamestates/menu" ) ) )
+        GameState.current():switch( "gamestates/menu" )
     end
 
 end
@@ -104,6 +117,9 @@ function OptionsMenu:draw()
 end
 
 function OptionsMenu:update( dt )
+    self.tween:update( dt )
+    Timer:update( dt )
+    self.frame:SetPos( self.position.x, self.position.y, true )
     loveframes.update( dt )
 end
 

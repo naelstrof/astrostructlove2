@@ -1,27 +1,42 @@
 local Loading = {
-    accumulator = 0,
-    font = love.graphics.newFont( PackLoader:getFile( "fonts/Lato-Thin.ttf"), 64 )
+    font = love.graphics.newFont( PackLoader:getFile( "fonts/Lato-Thin.ttf"), 64 ),
+    switchtarget = "gamestates/menu",
+    tweentime = 2,
+    loader = nil
 }
 
-function Loading:menu()
-    GameState.switch( require( PackLoader:getRequire( "gamestates/menu" ) ) )
+function Loading:setSwitchTarget( target )
+    self.switchtarget = target
+end
+
+function Loading:setLoadFunction( func )
+    self.loader = func
 end
 
 function Loading:enter()
-    self.offsets = { x = self.font:getWidth( "ASTROSTRUCT" ), y = self.font:getHeight() }
-    self.window = { x = love.window.getWidth(), y = love.window.getHeight() }
-    Timer:add( 5, self.menu )
+    self.offsets = -Vector( self.font:getWidth( "ASTROSTRUCT" ), self.font:getHeight() ) / 2
+    self.color = { a = 0 }
+    self.t = Tween.new( self.tweentime/2, self.color, { a = 255 }, "outQuart" )
+    Timer:add( self.tweentime/2, function(obj)
+        obj.t = Tween.new( self.tweentime/2, obj.color, { a = 0 }, "inQuart" )
+    end, self )
+    Timer:add( self.tweentime/2 , self.loader )
+    Timer:add( self.tweentime, function()
+        GameState.switch( require( PackLoader:getRequire( self.switchtarget ) ) )
+    end )
 end
 
 function Loading:update( dt )
-    self.accumulator = self.accumulator + dt
+    self.position = Vector( love.window.getWidth() / 2, love.window.getHeight() / 2 )
+    self.position = self.position + self.offsets
+    self.t:update( dt )
     Timer:update( dt )
 end
 
 function Loading:draw()
-    love.graphics.setColor( 255, 255, 255, math.abs( math.sin( 1.05 * self.accumulator ) ) * 255)
-    love.graphics.setFont(self.font)
-    love.graphics.print("ASTROSTRUCT", self.window.x / 2 - self.offsets.x / 2, self.window.y / 2 - self.offsets.y / 2)
+    love.graphics.setColor( 255, 255, 255, self.color.a )
+    love.graphics.setFont( self.font )
+    love.graphics.print( "ASTROSTRUCT", self.position.x, self.position.y )
 end
 
 return Loading

@@ -1,6 +1,8 @@
 local Menu = {
     menuItems = {},
     buttonHeight = 24,
+    entered = false,
+    tweentime = 0.5,
     count = 0
 }
 
@@ -10,11 +12,11 @@ function Menu:addItem( item )
 end
 
 local play = { name="Play", click=function( object, x, y )
-    GameState.switch( require( PackLoader:getRequire( "gamestates/test" ) ) )
+    GameState.current():switch( "gamestates/test" )
 end }
 
 local options = { name="Options", click=function( object, x, y )
-    GameState.switch( require( PackLoader:getRequire( "gamestates/options" ) ) )
+    GameState.current():switch( "gamestates/options" )
 end }
 
 local quit = { name="Quit", click=function( object, x, y )
@@ -25,6 +27,13 @@ Menu:addItem( play )
 Menu:addItem( options )
 Menu:addItem( quit )
 
+function Menu:switch( gamestate )
+    self.tween = Tween.new( self.tweentime, self.position, self.outposition, "inQuad" )
+    Timer:add( self.tweentime, function()
+        GameState.switch( require( PackLoader:getRequire( gamestate ) ) )
+    end )
+end
+
 function Menu:enter()
     -- We use this in Menu:resize() too, so we don't use a
     -- local variable
@@ -32,11 +41,11 @@ function Menu:enter()
     self.frame:SetName( "Main Menu" )
     self.frame:ShowCloseButton( false )
     self.frame:SetHeight( 250 )
-    self.frame:Center() self.frame = loveframes.Create( "frame" )
-    self.frame:SetName( "Main Menu" )
-    self.frame:ShowCloseButton( false )
-    self.frame:SetHeight( 250 )
-    self.frame:Center()
+    self.center = Vector( love.window.getWidth() / 2, love.window.getHeight() / 2 )
+    self.outposition = Vector( -self.frame:GetWidth()/2 - self.center.x, self.center.y )
+    self.position = deepcopy( self.outposition )
+    self.frame:SetPos( self.position.x, self.position.y, true )
+    self.tween = Tween.new( self.tweentime, self.position, self.center, "outQuad" )
 
     local list = loveframes.Create( "list", self.frame )
     list:SetPos( 0, 26 )
@@ -49,17 +58,24 @@ function Menu:enter()
         button.OnClick = v.click
         list:AddItem( button )
     end
+    self.entered = true
 end
 
 function Menu:leave()
+    self.entered = false
     loveframes.util:RemoveAll()
 end
 
 function Menu:draw()
-    loveframes.draw()
+    if self.entered then
+        loveframes.draw()
+    end
 end
 
 function Menu:update( dt )
+    self.tween:update( dt )
+    Timer:update( dt )
+    self.frame:SetPos( self.position.x, self.position.y, true )
     loveframes.update( dt )
 end
 
@@ -85,6 +101,7 @@ end
 
 function Menu:resize( w, h )
     self.frame:Center()
+    self.center = Vector( love.window.getWidth() / 2, love.window.getHeight() / 2 )
 end
 
 return Menu
