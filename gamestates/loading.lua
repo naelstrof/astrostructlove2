@@ -3,16 +3,19 @@ local Loading = {
     font = love.graphics.newFont( PackLoader:getFile( "fonts/Lato-Thin.ttf"), 64 )
 }
 
+function Loading:menu()
+    GameState.switch( require( PackLoader:getRequire( "gamestates/menu" ) ) )
+end
+
 function Loading:enter()
     self.offsets = { x = self.font:getWidth( "ASTROSTRUCT" ), y = self.font:getHeight() }
     self.window = { x = love.window.getWidth(), y = love.window.getHeight() }
+    Timer:add( 5, self.menu )
 end
 
-function Loading:update(dt)
+function Loading:update( dt )
     self.accumulator = self.accumulator + dt
-    if self.accumulator > 2.99 then
-        GameState.switch( require( PackLoader:getRequire( "gamestates/menu" ) ) )
-    end
+    Timer:update( dt )
 end
 
 function Loading:draw()
