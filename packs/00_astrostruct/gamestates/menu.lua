@@ -100,8 +100,9 @@ function Menu:textinput( text )
 end
 
 function Menu:resize( w, h )
-    self.frame:Center()
     self.center = Vector( love.window.getWidth() / 2, love.window.getHeight() / 2 )
+    self.outposition = Vector( self.frame:GetWidth()/2 + self.center.x * 2, self.center.y )
+    self.position = self.center
 end
 
 return Menu
