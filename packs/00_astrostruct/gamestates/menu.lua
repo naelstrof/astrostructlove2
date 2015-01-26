@@ -11,6 +11,8 @@ function Menu:addItem( item )
     table.insert( Menu.menuItems, item )
 end
 
+--GameState.current():switch refers to the switch method in Menu. it is not a library function!
+
 local play = { name="Play", click=function( object, x, y )
     GameState.current():switch( "gamestates/test" )
 end }
