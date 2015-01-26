@@ -1,6 +1,8 @@
 local Server = {
     host = nil,
     peers = {},
+    callbackobject = nil,
+    callbacks = {},
     players = {}
 }
 
@@ -18,12 +20,28 @@ function Server:start( ip, port )
     print( "Created a listen server on " .. self.host:get_socket_address() )
 end
 
+function Server:setCallbacks( object, receive, disconnect, connect )
+    self.callbackobject = object
+    self.callbacks.receive = receive
+    self.callbacks.disconnect = disconnect
+    self.callbacks.connect = connect
+end
+
 function Server:update()
-    local event = sef.host:service()
+    local event = self.host:service()
     while event do
         if event.type == "receive" then
+            if self.callbacks.receive then
+                self.callbacks.receive( object, event )
+            end
         elseif event.type == "connect" then
+            if self.callbacks.connect then
+                self.callbacks.connect( object, event )
+            end
         elseif event.type == "disconnect" then
+            if self.callbacks.disconnect then
+                self.callbacks.disconnect( object, event )
+            end
         end
     end
 end

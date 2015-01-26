@@ -26,6 +26,10 @@ function Options:interpret( i, v )
             error( "Fullscreen option must be a boolean!" )
         end
         local width, height, flags = love.window.getMode()
+        if not v then
+            width = self:get( "windowedWidth" )
+            height = self:get( "windowedHeight" )
+        end
         if flags.fullscreen ~= v then
             flags.fullscreen = v
             flags.fullscreentype = "desktop"
