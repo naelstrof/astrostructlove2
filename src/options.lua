@@ -34,21 +34,21 @@ function Options:interpret( i, v )
             flags.fullscreen = v
             flags.fullscreentype = "desktop"
             love.window.setMode( width, height, flags )
-            GameState.current():resize( width, height )
+            love.event.push( "resize", width, height )
         end
     elseif i == "windowedWidth" then
         local width, height, flags = love.window.getMode()
         if width ~= v then
             width = v
             love.window.setMode( width, height, flags )
-            GameState.current():resize( width, height )
+            love.event.push( "resize", width, height )
         end
     elseif i == "windowedHeight" then
         local width, height, flags = love.window.getMode()
         if height ~= v then
             height = v
             love.window.setMode( width, height, flags )
-            GameState.current():resize( width, height )
+            love.event.push( "resize", width, height )
         end
     end
 end

@@ -3,8 +3,8 @@
 Tween = require( "src/tween" )
 Timer = require( "src/timer" )
 Tserial = require( "src/tserial" )
-Options = require( "src/options" )
 GameState = require( "src/gamestate" )
+Options = require( "src/options" )
 Vector = require( "src/vector" )
 PackLoader = require( "src/packloader" ):init()
 
