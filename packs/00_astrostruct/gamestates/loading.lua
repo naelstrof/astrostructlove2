@@ -27,6 +27,11 @@ function Loading:enter()
 end
 
 function Loading:update( dt )
+    -- During loading we're going to have HUGE dt's which will cause the animation to not smoothly finish
+    -- So we cap it.
+    if dt > 1/60 then
+        dt = 1/60
+    end
     self.position = Vector( love.window.getWidth() / 2, love.window.getHeight() / 2 )
     self.position = self.position + self.offsets
     self.t:update( dt )
