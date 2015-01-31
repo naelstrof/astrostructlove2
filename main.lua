@@ -11,6 +11,7 @@ PackLoader = require( "src/packloader" ):init()
 function love.load()
     love.math.setRandomSeed( love.timer.getTime() )
     Options:load()
+    love.window.setTitle( "Astrostruct" )
     love.window.setMode( Options:get( "windowedWidth" ),
                          Options:get( "windowedHeight" ),
                          {
@@ -33,4 +34,8 @@ function love.load()
     end )
     loader:setSwitchTarget( "gamestates/menu" )
     GameState.switch( loader )
+end
+
+function love.threaderror( thread, errorstr )
+    error( "Thread error!\n" .. errorstr )
 end
