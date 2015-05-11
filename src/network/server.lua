@@ -32,15 +32,15 @@ function Server:update()
     while event do
         if event.type == "receive" then
             if self.callbacks.receive then
-                self.callbacks.receive( object, event )
+                self.callbacks.receive( self.callbackobject, event )
             end
         elseif event.type == "connect" then
             if self.callbacks.connect then
-                self.callbacks.connect( object, event )
+                self.callbacks.connect( self.callbackobject, event )
             end
         elseif event.type == "disconnect" then
             if self.callbacks.disconnect then
-                self.callbacks.disconnect( object, event )
+                self.callbacks.disconnect( self.callbackobject, event )
             end
         end
     end

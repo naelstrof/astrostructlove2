@@ -14,8 +14,8 @@ end
 --GameState.current():switch refers to the switch method in Menu. it is not a library function!
 
 local play = { name="Play", click=function( object, x, y )
-    self.serverThread = love.thread.newThread( "main_server.lua" )
-    self.serverThread:start()
+    serverThread = love.thread.newThread( "main_server.lua" )
+    serverThread:start()
     GameState.current():switch( "gamestates/lobby" )
 end }
 

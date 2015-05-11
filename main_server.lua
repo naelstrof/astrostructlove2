@@ -1,4 +1,8 @@
 require( "love.filesystem" )
+require( "love.math" )
+require( "love.audio" )
+require( "love.timer" )
+require( "enet" )
 require( "src/helper" )
 Tserial = require( "src/tserial" )
 Class = require( "src/30log" )
@@ -13,9 +17,11 @@ GameState = require( "src/gamestate" )
 PackLoader = require( "src/packloader" ):init()
 Server = require( "src/network/server" )
 
-function love.load()
-    love.math.setRandomSeed( love.timer.getTime() )
-    Server:start( "*", "27020" )
-    GameState.registerEvents()
-    GameState.switch( require( PackLoader:getRequire( "gamestates/server/lobby" ) ) )
+love.math.setRandomSeed( love.timer.getTime() )
+Server:start( "*", "27020" )
+GameState.registerEvents()
+GameState.switch( require( PackLoader:getRequire( "gamestates/server/lobby" ) ) )
+
+while( true ) do
+    GameState.update( love.timer.getDelta() )
 end
